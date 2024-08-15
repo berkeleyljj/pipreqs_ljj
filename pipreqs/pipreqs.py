@@ -133,7 +133,8 @@ def get_all_imports(path, encoding="utf-8", extra_ignore_dirs=None, follow_links
 
         for file_name in files:
             file_name = os.path.join(root, file_name)
-            contents = read_file_content(file_name, encoding)
+            # NOTE: Changed this line
+            contents = read_file_hybrid(file_name, encoding)
 
             try:
                 tree = ast.parse(contents)
@@ -174,7 +175,7 @@ def get_all_imports(path, encoding="utf-8", extra_ignore_dirs=None, follow_links
 def get_file_extensions():
     return DEFAULT_EXTENSIONS + [".ipynb"] if scan_noteboooks else DEFAULT_EXTENSIONS
 
-
+# Note: the original is here
 def read_file_content(file_name: str, encoding="utf-8"):
     if file_ext_is_allowed(file_name, DEFAULT_EXTENSIONS):
         with open(file_name, "r", encoding=encoding) as f:

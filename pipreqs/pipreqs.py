@@ -184,6 +184,28 @@ def read_file_content(file_name: str, encoding="utf-8"):
     return contents
 
 
+# TODO: Maybe add multi-line import checking if needed. 
+def read_file_hybrid(file_name: str, encoding="utf-8"):
+    contents = ""
+    try:
+        if file_ext_is_allowed(file_name, DEFAULT_EXTENSIONS):
+            with open(file_name, "r", encoding=encoding) as f:
+                contents = f.read()
+                # parsing check
+                ast.parse(contents)
+        elif file_ext_is_allowed(file_name, [".ipynb"]) and scan_noteboooks:
+            contents = ipynb_2_py(file_name, encoding=encoding)
+    except (SyntaxError, UnicodeDecodeError) as e:
+        logging.warning(f"Failed to parse {file_name} normally, switching to import-only mode. Error: {e}")
+        # If decoding error happens, use import-only checking
+        contents = ""
+        with open(file_name, "r", encoding=encoding) as f:
+            contents = "\n".join([line.strip() for line in f if line.strip().startswith(("import ", "from "))])
+    
+    return contents
+
+
+
 def file_ext_is_allowed(file_name, acceptable):
     return os.path.splitext(file_name)[1] in acceptable
 
